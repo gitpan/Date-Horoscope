@@ -4,4 +4,5 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'Date::Horoscope',
     'VERSION_FROM' => 'Horoscope.pm', # finds $VERSION
+	      'PREREQ_PM' => { 'Date::Manip' }
 );

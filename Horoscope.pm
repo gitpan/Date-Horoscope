@@ -16,7 +16,7 @@ require Exporter;
 @EXPORT = qw(
 	
 );
-$VERSION = '1.2';
+$VERSION = '2.0';
 
 # year is irrelevant for our purposes
 
@@ -106,16 +106,24 @@ sub day_month_logic {
 sub locate {
     my $input_date = $_[0];
 
+    warn "input_date: $input_date";
+
     my %input_date;
     $input_date{month} = &UnixDate($input_date, '%m');
     $input_date{day}   = &UnixDate($input_date, '%d');    
     $input_date{year}  = 1993;
 
-    return 'capricorn' if $input_date{month}=12 && $input_date{day} >=22 && $input_date{day} <=31;
+    warn "Y-M-D: $input_date{year}-$input_date{month}-$input_date{day}";
+
+    return 'capricorn' if $input_date{month}==12 && $input_date{day} >=22 && $input_date{day} <=31;
 
     
     $input_date{new} = "$input_date{year}-$input_date{month}-$input_date{day}";
+    warn "<1>input_date{new} = $input_date{new}";
     $input_date{new} =~ s/\s+//g;
+
+
+    warn "<2>input_date{new} = $input_date{new}";
 
     my @sorted_keys = 
 	sort {
@@ -127,20 +135,23 @@ sub locate {
 
     # this returns something like 'taurus', 'sagittarius', etc.
     for my $h (@sorted_keys) {
+
         # start and end dates of this zodiac sign... year irrelevant
 	my $start = &ParseDate($Date::Horoscope::horoscope{$h}{start}); 
 	my $end   = &ParseDate($Date::Horoscope::horoscope{$h}{end});
 	my $input = &ParseDate($input_date{new});
 
+
+
 	my $S=&Date_Cmp($start,$input);
-	my $E=&Date_Cmp($end,$input);
+	my $E=&Date_Cmp($input,$end);
 
 	warn sprintf("H: %s S: %d E: %d", $h, $S, $E);
 	warn sprintf ("start: %s end: %s input: %s", $start, $end, $input);
 
 	return $h if (
 		      ((!$S) || (!$E)) ||
-		      (($S < 0) && ($E > 0))
+		      (($S < 0) && ($E < 0))
 		      );
 	    
     }
@@ -166,17 +177,17 @@ use Date::Horoscope;
 use Date::Manip;
 
 $date='1969-05-11';
-$x='date';
- warn &UnixDate($$x, '%f');
 
-print $Date::Horoscope::horoscope{$x}/;
+$zodiac_sign_name =  Date::Horoscope::locate($date);
+$zodiac_sign_posn = $Date::Horoscope::horoscope{Date::Horoscope::locate($date)}->{position},$/;
 
 
 =head1 DESCRIPTION
 
-This module was written to help with the zodiac processing for a site I was
-contracting at. It returns either an all-lowercase zodiac based on a given
-date. You can take this string and use it as a key to %horoscope to get a
+This module was written to help with zodiac processing.
+It returns an all-lowercase zodiac sign name based on a given
+date parseable by Date::Manip. 
+You can take this string and use it as a key to %horoscope to get a
 position in the zodiac cycle.
 
 =head1 API
@@ -203,6 +214,6 @@ T.M. Brannon
 
 =head1 SEE ALSO
 
-perl(1).
+Date::Manip
 
 =cut
