@@ -16,7 +16,7 @@ require Exporter;
 @EXPORT = qw(
 	
 );
-$VERSION = '2.1';
+$VERSION = '2.2';
 
 # year is irrelevant for our purposes
 
@@ -205,12 +205,15 @@ taurus was number 1.
 
 =head1 OTHER
 
-I cannot say how tickled I am that RCS changes by <scalar>Date code into
+I cannot say how tickled I am that RCS changes my <scalar>Date code into
 as RCS string for me.
 
 =head1 AUTHOR
 
 T.M. Brannon
+
+Many thanks to Stephen McCamant for his detection of missing Pisces on 
+Leap Year. Fixed now!
 
 =head1 SEE ALSO
 
