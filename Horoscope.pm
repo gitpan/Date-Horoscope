@@ -16,70 +16,70 @@ require Exporter;
 @EXPORT = qw(
 	
 );
-$VERSION = '2.0';
+$VERSION = '2.1';
 
 # year is irrelevant for our purposes
 
 %Date::Horoscope::horoscope = (
 	      'aries' => {
 		  'position' => 1,
-		  'start' => '3/21/93', 
-		  'end'   => '4/20/93',
+		  'start' => '3/21/92', 
+		  'end'   => '4/20/92',
 	      },
 	      'taurus' => {
 		  'position' => 2,
-		  'start' => '4/21/93', 
-		  'end'   => '5/20/93',
+		  'start' => '4/21/92', 
+		  'end'   => '5/20/92',
 	      },
 	      'gemini' => {
 		  'position' => 3,
-		  'start' => '5/21/93', 
-		  'end'   => '6/21/93',
+		  'start' => '5/21/92', 
+		  'end'   => '6/21/92',
 	      },
 	      'cancer' => {
 		  'position' => 4,
-		  'start' => '6/22/93', 
-		  'end'   => '7/22/93',
+		  'start' => '6/22/92', 
+		  'end'   => '7/22/92',
 	      },
 	      'leo' => {
 		  'position' => 5,
-		  'start' => '7/23/93', 
-		  'end'   => '8/23/93',
+		  'start' => '7/23/92', 
+		  'end'   => '8/23/92',
 	      },
 	      'virgo' => {
 		  'position' => 6,
-		  'start' => '8/24/93', 
-		  'end'   => '9/22/93',
+		  'start' => '8/24/92', 
+		  'end'   => '9/22/92',
 	      },
 	      'libra' => {
 		  'position' => 7,
-		  'start' => '9/23/93', 
-		  'end'   => '10/22/93',
+		  'start' => '9/23/92', 
+		  'end'   => '10/22/92',
 	      },
 	      'scorpio' => {
 		  'position' => 8,
-		  'start' => '10/23/93', 
-		  'end'   => '11/21/93',
+		  'start' => '10/23/92', 
+		  'end'   => '11/21/92',
 	      },
 	      'sagittarius' => {
 		  'position' => 9,
-		  'start' => '11/22/93', 
-		  'end'   => '12/21/93',
+		  'start' => '11/22/92', 
+		  'end'   => '12/21/92',
 	      },
 	      'capricorn' => {
 		  'position' => 10,
-		  'start' => '1/1/93',   # NOT TRUE BUT NECESSARY
-		  'end'   => '1/19/93',
+		  'start' => '1/1/92',   # NOT TRUE BUT NECESSARY
+		  'end'   => '1/19/92',
 	      },
 	      'aquarius' => {
 		  'position' => 11,
-		  'start' => '1/20/93', 
-		  'end'   => '2/18/93',
+		  'start' => '1/20/92', 
+		  'end'   => '2/18/92',
 	      },
 	      'pisces' => {
 		  'position' => 12,
-		  'start' => '2/19/93', 
-		  'end'   => '3/20/93',
+		  'start' => '2/19/92', 
+		  'end'   => '3/20/92',
 	      }
 	      );
 
@@ -93,7 +93,7 @@ $VERSION = '2.0';
 sub day_month_logic {
     my ($M,$D)=@_;
 
-    warn "day_month_logic: $M, $D";
+    #warn "day_month_logic: $M, $D";
 
     ($M  < 0)  &&              return -1;
     ($M  > 0)  &&              return  1;
@@ -106,24 +106,24 @@ sub day_month_logic {
 sub locate {
     my $input_date = $_[0];
 
-    warn "input_date: $input_date";
+    #warn "input_date: $input_date";
 
     my %input_date;
     $input_date{month} = &UnixDate($input_date, '%m');
     $input_date{day}   = &UnixDate($input_date, '%d');    
-    $input_date{year}  = 1993;
+    $input_date{year}  = 1992;
 
-    warn "Y-M-D: $input_date{year}-$input_date{month}-$input_date{day}";
+    #warn "Y-M-D: $input_date{year}-$input_date{month}-$input_date{day}";
 
     return 'capricorn' if $input_date{month}==12 && $input_date{day} >=22 && $input_date{day} <=31;
 
     
     $input_date{new} = "$input_date{year}-$input_date{month}-$input_date{day}";
-    warn "<1>input_date{new} = $input_date{new}";
+    #warn "<1>input_date{new} = $input_date{new}";
     $input_date{new} =~ s/\s+//g;
 
 
-    warn "<2>input_date{new} = $input_date{new}";
+    #warn "<2>input_date{new} = $input_date{new}";
 
     my @sorted_keys = 
 	sort {
@@ -146,8 +146,8 @@ sub locate {
 	my $S=&Date_Cmp($start,$input);
 	my $E=&Date_Cmp($input,$end);
 
-	warn sprintf("H: %s S: %d E: %d", $h, $S, $E);
-	warn sprintf ("start: %s end: %s input: %s", $start, $end, $input);
+	#warn sprintf("H: %s S: %d E: %d", $h, $S, $E);
+	#warn sprintf ("start: %s end: %s input: %s", $start, $end, $input);
 
 	return $h if (
 		      ((!$S) || (!$E)) ||
