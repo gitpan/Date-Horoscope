@@ -16,7 +16,7 @@ require Exporter;
 @EXPORT = qw(
 	
 );
-$VERSION = '0.01';
+$VERSION = '1.2';
 
 # year is irrelevant for our purposes
 
@@ -68,7 +68,7 @@ $VERSION = '0.01';
 	      },
 	      'capricorn' => {
 		  'position' => 10,
-		  'start' => '12/22/93', 
+		  'start' => '1/1/93',   # NOT TRUE BUT NECESSARY
 		  'end'   => '1/19/93',
 	      },
 	      'aquarius' => {
@@ -84,7 +84,12 @@ $VERSION = '0.01';
 	      );
 
 
-# Preloaded methods go here.
+
+# day_month_logic:
+# -----------------------------------------------------------------------
+# Return a one if the day/month combo is greater than the day/month combo
+# it was subtracted from. Return 0 if equal and -1 if less.
+
 sub day_month_logic {
     my ($M,$D)=@_;
 
@@ -97,71 +102,46 @@ sub day_month_logic {
     ($M == 0)  && ($D  < 0) && return -1;
 }
 
-sub day_month_cmp {
-    my ($A,$B,$C)=@_;
-
-    warn Data::Dumper->Dump([$A, $B, $C], [ qw(A B C) ]);
-
-    my (%month,%day);
-
-    $month{A} = $A->{month} - $C->{month};
-    $month{B} = $B->{month} - $C->{month};
-    $day{A}   = $A->{day}   - $C->{day};
-    $day{B}   = $B->{day}   - $C->{day};
-
-    my $S = day_month_logic($month{A},$day{A});
-    my $E = day_month_logic($month{B},$day{B});
-
-    warn "S/E: $S/$E";
-    ($S == -1) && ( ($E == 0) || ($E == 1) ) && return 1;
-    ($S ==  0) &&   ($E == 1)                && return 1;
-}
 
 sub locate {
     my $input_date = $_[0];
 
-    warn " input date: $input_date";
+    my %input_date;
+    $input_date{month} = &UnixDate($input_date, '%m');
+    $input_date{day}   = &UnixDate($input_date, '%d');    
+    $input_date{year}  = 1993;
 
-    for my $h (keys %Date::Horoscope::horoscope) {
-	my $start = $Date::Horoscope::horoscope{$h}{start};
-	my $end   = $Date::Horoscope::horoscope{$h}{end};
-	
-	warn "testing $h";
+    return 'capricorn' if $input_date{month}=12 && $input_date{day} >=22 && $input_date{day} <=31;
 
-	my (%parse, %month, %day);
+    
+    $input_date{new} = "$input_date{year}-$input_date{month}-$input_date{day}";
+    $input_date{new} =~ s/\s+//g;
 
-	my @d= (\$input_date, \$start, \$end);
-
-# -----------------------------------------------------------------------
-# The reason for this kruft:
-
-# You cannot use symbolic references on my variables. I dont know why and
-# I dont think it should be this way.
-
-# If I used hard references then I wouldnt be able to bind the
-# %month and %day references with the named used in the 
-# symbolic reference
-# -----------------------------------------------------------------------
-
-	$month{input_date} = &UnixDate($input_date, '%f');
-	  $day{input_date} = &UnixDate($input_date, '%e');
-	$month{start}      = &UnixDate($start, '%f');
-	  $day{start}      = &UnixDate($start, '%e');
-	$month{end}        = &UnixDate($end, '%f');
-	  $day{end}        = &UnixDate($end, '%e');
+    my @sorted_keys = 
+	sort {
+	    $Date::Horoscope::horoscope{$a}{position} 
+	    <=> 
+	    $Date::Horoscope::horoscope{$b}{position}
+	} (keys %Date::Horoscope::horoscope);
 
 
-	warn Data::Dumper->Dump([$input_date,\%month],['input_date','month']);
+    # this returns something like 'taurus', 'sagittarius', etc.
+    for my $h (@sorted_keys) {
+        # start and end dates of this zodiac sign... year irrelevant
+	my $start = &ParseDate($Date::Horoscope::horoscope{$h}{start}); 
+	my $end   = &ParseDate($Date::Horoscope::horoscope{$h}{end});
+	my $input = &ParseDate($input_date{new});
 
-	my $day_month_cmp = day_month_cmp
-	     (
-	      { month => $month{start},      day => $day{start}       },
-	      { month => $month{end},        day => $day{end}         },
-	      { month => $month{input_date}, day => $day{input_date}  }
-	      );
+	my $S=&Date_Cmp($start,$input);
+	my $E=&Date_Cmp($end,$input);
 
-	warn "day_month_cmp: $day_month_cmp";
-	return $h if ($day_month_cmp);
+	warn sprintf("H: %s S: %d E: %d", $h, $S, $E);
+	warn sprintf ("start: %s end: %s input: %s", $start, $end, $input);
+
+	return $h if (
+		      ((!$S) || (!$E)) ||
+		      (($S < 0) && ($E > 0))
+		      );
 	    
     }
 }
@@ -189,7 +169,7 @@ $date='1969-05-11';
 $x='date';
  warn &UnixDate($$x, '%f');
 
-print $Date::Horoscope::horoscope{Date::Horoscope::locate('1969-05-11')}->{position}, $/;
+print $Date::Horoscope::horoscope{$x}/;
 
 
 =head1 DESCRIPTION
@@ -209,12 +189,17 @@ name.
 =head2 %horoscope
 
 This hash contains the position, and start and end dates for a zodiac sign.
-The zodiac starts with Aries as far as I know. Some idiot didn't think 
+The zodiac starts with Aries as far as I know. Some idiot didn't think
 taurus was number 1.
+
+=head1 OTHER
+
+I cannot say how tickled I am that RCS changes by <scalar>Date code into
+as RCS string for me.
 
 =head1 AUTHOR
 
-A. U. Thor, a.u.thor@a.galaxy.far.far.away
+T.M. Brannon
 
 =head1 SEE ALSO
 
